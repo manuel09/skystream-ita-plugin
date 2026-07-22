@@ -1,6 +1,6 @@
 [
   {
-    "packageName": "com.manuel.skystream.streamingcommunity",
+    "packageName": "com.manuel.skystream.sc",
     "name": "StreamingCommunity",
     "version": 3,
     "baseUrl": "https://streamingcommunityz.sale",
@@ -37,6 +37,6 @@
         "url": "https://streamingcommunity.help"
       }
     ],
-    "url": "https://raw.githubusercontent.com/manuel09/skystream-ita-plugin/main/dist/com.manuel.skystream.streamingcommunity.sky"
+    "url": "https://raw.githubusercontent.com/manuel09/skystream-ita-plugin/main/dist/com.manuel.skystream.sc.sky"
   }
 ]
