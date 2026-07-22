@@ -137,7 +137,7 @@
             });
 
             if (type === 'movie' && t.preview && t.preview.embed_url) {
-                item.streams = [new StreamResult({ url: t.preview.embed_url, source: 'VixCloud', quality: t.quality || 'Auto' })];
+                item.streams = [{ url: t.preview.embed_url, quality: t.quality || 'HD' }];
             }
 
             if (type === 'series' && t.seasons) {
@@ -149,13 +149,15 @@
                     if (se.episodes && se.episodes.length > 0) {
                         for (var e = 0; e < se.episodes.length; e++) {
                             var ep = se.episodes[e];
+                            var epUrl = ep.video_id ? (data.props.scws_url || 'https://vixcloud.co') + '/embed/' + ep.video_id + '?canPlayFHD=1' : '';
                             eps.push(new Episode({
                                 name: 'S' + sn + 'E' + ep.number + ' - ' + (ep.name || ''),
-                                url: ep.video_id ? data.props.scws_url + '/embed/' + ep.video_id + '?canPlayFHD=1' : ('/it/watch/' + t.id + '?s=' + sn + '&e=' + ep.number),
+                                url: epUrl || ('/it/titles/' + t.id + '-' + t.slug + '/season-' + sn),
                                 season: sn,
                                 episode: ep.number,
                                 rating: ep.score ? parseFloat(ep.score) : undefined,
-                                dubStatus: sub ? 'subbed' : 'none'
+                                dubStatus: sub ? 'subbed' : 'none',
+                                streams: epUrl ? [{ url: epUrl, quality: 'HD' }] : []
                             }));
                         }
                     }
@@ -172,7 +174,7 @@
     async function loadStreams(url, cb) {
         try {
             if (url.indexOf('vixcloud.co') >= 0 || url.indexOf('/embed/') >= 0) {
-                return cb({ success: true, data: [new StreamResult({ url: url, source: 'VixCloud', quality: 'Auto' })] });
+                return cb({ success: true, data: [{ url: url, quality: 'HD' }] });
             }
             var tid = getId(url);
             if (!tid) return cb({ success: false, errorCode: 'INVALID_URL', message: 'URL non valido' });
@@ -183,7 +185,7 @@
             if (resp.body && resp.status < 400) {
                 var data = extractInertiaData(resp.body);
                 if (data && data.props && data.props.title && data.props.title.preview && data.props.title.preview.embed_url) {
-                    streams.push(new StreamResult({ url: data.props.title.preview.embed_url, source: 'VixCloud', quality: data.props.title.quality || 'Auto' }));
+                    streams.push({ url: data.props.title.preview.embed_url, quality: data.props.title.quality || 'HD' });
                 }
             }
             if (streams.length === 0) {
