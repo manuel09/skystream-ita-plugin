@@ -140,11 +140,6 @@
         return match ? parseInt(match[1]) : null;
     }
 
-    registerSettings({
-        username: { type: 'string', label: 'Email (opzionale)', default: '' },
-        password: { type: 'string', label: 'Password (opzionale)', default: '', password: true }
-    });
-
     // ===== getHome =====
     async function getHome(cb) {
         try {
