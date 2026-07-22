@@ -139,7 +139,7 @@
             });
 
             if (streamUrl) {
-                item.streams = [{ url: streamUrl, quality: t.quality || 'HD' }];
+                item.streams = [new StreamResult({ url: streamUrl, source: 'VixCloud' })];
             }
 
             if (type === 'series' && t.seasons) {
@@ -159,7 +159,7 @@
                                 episode: ep.number,
                                 rating: ep.score ? parseFloat(ep.score) : undefined,
                                 dubStatus: sub ? 'subbed' : 'none',
-                                streams: epUrl ? [{ url: epUrl, quality: 'HD' }] : []
+                                streams: epUrl ? [new StreamResult({ url: epUrl, source: 'VixCloud' })] : []
                             }));
                         }
                     }
@@ -176,15 +176,7 @@
     async function loadStreams(url, cb) {
         try {
             if (url.indexOf('vixcloud.co') >= 0 || url.indexOf('/embed/') >= 0) {
-                var streams = [];
-                try {
-                    if (typeof loadExtractor === 'function') {
-                        streams = await loadExtractor(url);
-                    }
-                } catch (ex) {}
-                if (!streams || !streams.length) {
-                    streams = [{ url: url, quality: 'HD' }];
-                }
+                var streams = [new StreamResult({ url: url, source: 'VixCloud' })];
                 return cb({ success: true, data: streams });
             }
             var tid = getId(url);
@@ -196,7 +188,7 @@
             if (resp.body && resp.status < 400) {
                 var data = extractInertiaData(resp.body);
                 if (data && data.props && data.props.title && data.props.title.preview && data.props.title.preview.embed_url) {
-                    streams.push({ url: data.props.title.preview.embed_url, quality: data.props.title.quality || 'HD' });
+                    streams.push(new StreamResult({ url: data.props.title.preview.embed_url, source: 'VixCloud' }));
                 }
             }
             if (streams.length === 0) {
