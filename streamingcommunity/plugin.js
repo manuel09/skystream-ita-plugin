@@ -120,9 +120,11 @@
             var genres = [];
             if (t.genres) for (var g = 0; g < t.genres.length; g++) genres.push(t.genres[g].name);
 
+            var streamUrl = (t.preview && t.preview.embed_url) ? t.preview.embed_url : null;
+            
             var item = new MultimediaItem({
                 title: t.name || '',
-                url: url,
+                url: streamUrl || url,
                 posterUrl: poster(t.images),
                 type: type,
                 score: t.score ? parseFloat(t.score) : undefined,
@@ -136,8 +138,8 @@
                 tags: genres
             });
 
-            if (type === 'movie' && t.preview && t.preview.embed_url) {
-                item.streams = [{ url: t.preview.embed_url, quality: t.quality || 'HD' }];
+            if (streamUrl) {
+                item.streams = [{ url: streamUrl, quality: t.quality || 'HD' }];
             }
 
             if (type === 'series' && t.seasons) {
