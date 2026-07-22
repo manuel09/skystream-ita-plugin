@@ -176,7 +176,16 @@
     async function loadStreams(url, cb) {
         try {
             if (url.indexOf('vixcloud.co') >= 0 || url.indexOf('/embed/') >= 0) {
-                return cb({ success: true, data: [{ url: url, quality: 'HD' }] });
+                var streams = [];
+                try {
+                    if (typeof loadExtractor === 'function') {
+                        streams = await loadExtractor(url);
+                    }
+                } catch (ex) {}
+                if (!streams || !streams.length) {
+                    streams = [{ url: url, quality: 'HD' }];
+                }
+                return cb({ success: true, data: streams });
             }
             var tid = getId(url);
             if (!tid) return cb({ success: false, errorCode: 'INVALID_URL', message: 'URL non valido' });
