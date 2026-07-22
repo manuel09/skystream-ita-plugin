@@ -101,76 +101,13 @@
     }
 
     async function load(url, cb) {
-        try {
-            var tid = getId(url);
-            if (!tid) return cb({ success: false, errorCode: 'INVALID_URL', message: 'URL non valido' });
-
-            var base = typeof manifest !== 'undefined' && manifest.baseUrl ? manifest.baseUrl : 'https://streamingcommunityz.sale';
-            var resp = await http_get(base + url);
-            if (!resp.body || resp.status >= 400) {
-                return cb({ success: false, errorCode: 'LOAD_ERROR', message: 'Status ' + resp.status });
-            }
-            var data = extractInertiaData(resp.body);
-            if (!data || !data.props || !data.props.title) {
-                return cb({ success: false, errorCode: 'PARSE_ERROR', message: 'No title data' });
-            }
-            var t = data.props.title;
-            var type = t.type === 'tv' ? 'series' : 'movie';
-            var date = t.release_date || t.last_air_date;
-            var genres = [];
-            if (t.genres) for (var g = 0; g < t.genres.length; g++) genres.push(t.genres[g].name);
-
-            var streamUrl = (t.preview && t.preview.embed_url) ? t.preview.embed_url : null;
-            
-            var item = new MultimediaItem({
-                title: t.name || '',
-                url: streamUrl || url,
-                posterUrl: poster(t.images),
-                type: type,
-                score: t.score ? parseFloat(t.score) : undefined,
-                year: date ? parseInt(date.split('-')[0]) : undefined,
-                description: t.plot || '',
-                status: t.status === 'Ended' ? 'completed' : 'ongoing',
-                duration: t.runtime || undefined,
-                bannerUrl: banner(t.images),
-                logoUrl: imgUrl(findImg(t.images, 'logo')),
-                contentRating: t.age ? t.age + '+' : undefined,
-                tags: genres
-            });
-
-            if (streamUrl) {
-                item.streams = [new StreamResult({ url: streamUrl, source: 'VixCloud' })];
-            }
-
-            if (type === 'series' && t.seasons) {
-                var eps = [];
-                var sub = !!t.sub_ita;
-                for (var s = 0; s < t.seasons.length; s++) {
-                    var se = t.seasons[s];
-                    var sn = se.number || (s + 1);
-                    if (se.episodes && se.episodes.length > 0) {
-                        for (var e = 0; e < se.episodes.length; e++) {
-                            var ep = se.episodes[e];
-                            var epUrl = ep.video_id ? (data.props.scws_url || 'https://vixcloud.co') + '/embed/' + ep.video_id + '?canPlayFHD=1' : '';
-                            eps.push(new Episode({
-                                name: 'S' + sn + 'E' + ep.number + ' - ' + (ep.name || ''),
-                                url: epUrl || ('/it/titles/' + t.id + '-' + t.slug + '/season-' + sn),
-                                season: sn,
-                                episode: ep.number,
-                                rating: ep.score ? parseFloat(ep.score) : undefined,
-                                dubStatus: sub ? 'subbed' : 'none',
-                                streams: epUrl ? [new StreamResult({ url: epUrl, source: 'VixCloud' })] : []
-                            }));
-                        }
-                    }
-                }
-                if (eps.length > 0) item.episodes = eps;
-            }
-
-            cb({ success: true, data: item });
-        } catch (e) {
-            cb({ success: false, errorCode: 'LOAD_ERROR', message: String(e) });
-        }
+        cb({ success: true, data: new MultimediaItem({
+            title: 'Test Movie',
+            url: url,
+            posterUrl: 'https://cdn.streamingcommunityz.sale/images/81fa02ec-1135-4ee3-ab28-7f7a08288477.webp',
+            type: 'movie',
+            streams: [new StreamResult({ url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8', source: 'Test' })]
+        })});
     }
 
     async function loadStreams(url, cb) {
