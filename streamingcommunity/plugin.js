@@ -50,85 +50,118 @@
         return m ? parseInt(m[1]) : null;
     }
 
-    async function getHome(cb) {
+    var base = 'https://streamingcommunityz.sale';
+
+    async function getHome() {
+        var resp = await http_get(base + '/');
+        if (!resp.body || resp.status >= 400) throw new Error('Status ' + resp.status);
+        var data = extractInertiaData(resp.body);
+        if (!data || !data.props || !data.props.sliders) throw new Error('No sliders');
+        var sliders = data.props.sliders;
+        var out = {};
+        for (var i = 0; i < sliders.length; i++) {
+            var s = sliders[i];
+            out[s.label || s.name] = [];
+            if (s.titles) for (var j = 0; j < s.titles.length; j++) out[s.label || s.name].push(toItem(s.titles[j]));
+        }
+        return out;
+    }
+
+    async function search(query) {
+        var resp = await http_get(base + '/it/search?q=' + encodeURIComponent(query));
+        if (!resp.body || resp.status >= 400) return [];
+        var items = [];
         try {
-            var base = typeof manifest !== 'undefined' && manifest.baseUrl ? manifest.baseUrl : 'https://streamingcommunityz.sale';
-            var resp = await http_get(base + '/');
-            if (!resp.body || resp.status >= 400) {
-                return cb({ success: false, errorCode: 'NETWORK_ERROR', message: 'Status ' + resp.status });
-            }
+            var result = JSON.parse(resp.body);
+            if (result.data) for (var i = 0; i < result.data.length; i++) items.push(toItem(result.data[i]));
+        } catch (e) {
             var data = extractInertiaData(resp.body);
-            if (!data || !data.props || !data.props.sliders) {
-                return cb({ success: false, errorCode: 'PARSE_ERROR', message: 'No sliders found' });
+            if (data && data.props && data.props.titles) {
+                var titles = data.props.titles.data || data.props.titles;
+                for (var j = 0; j < titles.length; j++) items.push(toItem(titles[j]));
             }
-            var sliders = data.props.sliders;
-            var out = {};
-            for (var i = 0; i < sliders.length; i++) {
-                var s = sliders[i];
-                out[s.label || s.name] = [];
-                if (s.titles) for (var j = 0; j < s.titles.length; j++) out[s.label || s.name].push(toItem(s.titles[j]));
-            }
-            cb({ success: true, data: out });
-        } catch (e) {
-            cb({ success: false, errorCode: 'PARSE_ERROR', message: String(e) });
         }
+        return items;
     }
 
-    async function search(query, cb) {
-        try {
-            var base = typeof manifest !== 'undefined' && manifest.baseUrl ? manifest.baseUrl : 'https://streamingcommunityz.sale';
-            var url = base + '/it/search?q=' + encodeURIComponent(query);
-            var resp = await http_get(url);
-            if (!resp.body || resp.status >= 400) {
-                return cb({ success: false, errorCode: 'SEARCH_ERROR', message: 'Status ' + resp.status });
-            }
-            var body = resp.body;
-            var items = [];
-            try {
-                var result = JSON.parse(body);
-                if (result.data) for (var i = 0; i < result.data.length; i++) items.push(toItem(result.data[i]));
-            } catch (e) {
-                var data = extractInertiaData(body);
-                if (data && data.props && data.props.titles) {
-                    var titles = data.props.titles.data || data.props.titles;
-                    for (var j = 0; j < titles.length; j++) items.push(toItem(titles[j]));
+    async function load(url) {
+        if (typeof manifest !== 'undefined') base = manifest.baseUrl || base;
+        var resp = await http_get(base + url);
+        if (!resp.body || resp.status >= 400) throw new Error('Status ' + resp.status);
+        var data = extractInertiaData(resp.body);
+        if (!data || !data.props || !data.props.title) throw new Error('No title data');
+        var t = data.props.title;
+        var type = t.type === 'tv' ? 'series' : 'movie';
+        var date = t.release_date || t.last_air_date;
+        var genres = [];
+        if (t.genres) for (var g = 0; g < t.genres.length; g++) genres.push(t.genres[g].name);
+        var streamUrl = (t.preview && t.preview.embed_url) ? t.preview.embed_url : null;
+
+        var item = new MultimediaItem({
+            title: t.name || '',
+            url: url,
+            posterUrl: poster(t.images),
+            type: type,
+            score: t.score ? parseFloat(t.score) : undefined,
+            year: date ? parseInt(date.split('-')[0]) : undefined,
+            description: t.plot || '',
+            status: t.status === 'Ended' ? 'completed' : 'ongoing',
+            duration: t.runtime || undefined,
+            bannerUrl: banner(t.images),
+            logoUrl: imgUrl(findImg(t.images, 'logo')),
+            contentRating: t.age ? t.age + '+' : undefined,
+            tags: genres
+        });
+
+        if (streamUrl) {
+            item.streams = [new StreamResult({ url: streamUrl, source: 'VixCloud' })];
+        }
+
+        if (type === 'series' && t.seasons) {
+            var eps = [];
+            var sub = !!t.sub_ita;
+            for (var s = 0; s < t.seasons.length; s++) {
+                var se = t.seasons[s];
+                var sn = se.number || (s + 1);
+                if (se.episodes && se.episodes.length > 0) {
+                    for (var e = 0; e < se.episodes.length; e++) {
+                        var ep = se.episodes[e];
+                        var epUrl = ep.video_id ? (data.props.scws_url || 'https://vixcloud.co') + '/embed/' + ep.video_id + '?canPlayFHD=1' : '';
+                        eps.push(new Episode({
+                            name: 'S' + sn + 'E' + ep.number + ' - ' + (ep.name || ''),
+                            url: epUrl || ('/it/titles/' + t.id + '-' + t.slug + '/season-' + sn),
+                            season: sn,
+                            episode: ep.number,
+                            rating: ep.score ? parseFloat(ep.score) : undefined,
+                            dubStatus: sub ? 'subbed' : 'none',
+                            streams: epUrl ? [new StreamResult({ url: epUrl, source: 'VixCloud' })] : []
+                        }));
+                    }
                 }
             }
-            cb({ success: true, data: items });
-        } catch (e) {
-            cb({ success: false, errorCode: 'SEARCH_ERROR', message: String(e) });
+            if (eps.length > 0) item.episodes = eps;
         }
+
+        return item;
     }
 
-    async function load(url, cb) {
-        cb({ success: true, data: { title: 'Test', type: 'movie', url: url, posterUrl: 'https://via.placeholder.com/400', streams: [{ url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8', source: 'Test' }] } });
-    }
-
-    async function loadStreams(url, cb) {
-        try {
-            if (url.indexOf('vixcloud.co') >= 0 || url.indexOf('/embed/') >= 0) {
-                var streams = [new StreamResult({ url: url, source: 'VixCloud' })];
-                return cb({ success: true, data: streams });
-            }
-            var tid = getId(url);
-            if (!tid) return cb({ success: false, errorCode: 'INVALID_URL', message: 'URL non valido' });
-
-            var base = typeof manifest !== 'undefined' && manifest.baseUrl ? manifest.baseUrl : 'https://streamingcommunityz.sale';
-            var resp = await http_get(base + url);
-            var streams = [];
-            if (resp.body && resp.status < 400) {
-                var data = extractInertiaData(resp.body);
-                if (data && data.props && data.props.title && data.props.title.preview && data.props.title.preview.embed_url) {
-                    streams.push(new StreamResult({ url: data.props.title.preview.embed_url, source: 'VixCloud' }));
-                }
-            }
-            if (streams.length === 0) {
-                return cb({ success: false, errorCode: 'NO_STREAM', message: 'Stream non disponibile. Apri il sito nel browser.' });
-            }
-            cb({ success: true, data: streams });
-        } catch (e) {
-            cb({ success: false, errorCode: 'STREAM_ERROR', message: String(e) });
+    async function loadStreams(url) {
+        if (url.indexOf('vixcloud.co') >= 0 || url.indexOf('/embed/') >= 0) {
+            return [new StreamResult({ url: url, source: 'VixCloud' })];
         }
+        var tid = getId(url);
+        if (!tid) throw new Error('URL non valido');
+        if (typeof manifest !== 'undefined') base = manifest.baseUrl || base;
+        var resp = await http_get(base + url);
+        var streams = [];
+        if (resp.body && resp.status < 400) {
+            var data = extractInertiaData(resp.body);
+            if (data && data.props && data.props.title && data.props.title.preview && data.props.title.preview.embed_url) {
+                streams.push(new StreamResult({ url: data.props.title.preview.embed_url, source: 'VixCloud' }));
+            }
+        }
+        if (streams.length === 0) throw new Error('Nessuno stream');
+        return streams;
     }
 
     globalThis.getHome = getHome;
@@ -136,4 +169,3 @@
     globalThis.load = load;
     globalThis.loadStreams = loadStreams;
 })();
-// v4
