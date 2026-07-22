@@ -1,17 +1,13 @@
 {
   "packageName": "com.manuel.skystream.sc",
   "name": "SC Community",
-  "version": 6,
+  "version": 7,
   "baseUrl": "https://streamingcommunityz.sale",
-  "description": "Film e serie TV in streaming italiano. StreamingCommunity è la più grande community italiana per guardare film e serie online in HD.",
+  "description": "Film e serie TV in streaming italiano.",
   "authors": ["manuel"],
   "languages": ["it"],
   "categories": ["Film", "Serie TV"],
   "domains": [
-    { "name": "streamingcommunityz.sale", "url": "https://streamingcommunityz.sale" },
-    { "name": "streamingcommunity.to", "url": "https://streamingcommunity.to" },
-    { "name": "streamingcommunity.boats", "url": "https://streamingcommunity.boats" },
-    { "name": "streamingcommunity.miami", "url": "https://streamingcommunity.miami" },
-    { "name": "streamingcommunity.help", "url": "https://streamingcommunity.help" }
+    { "name": "streamingcommunityz.sale", "url": "https://streamingcommunityz.sale" }
   ]
 }
