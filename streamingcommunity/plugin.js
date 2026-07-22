@@ -1,9 +1,5 @@
 (function() {
 
-    function UA() {
-        return { 'User-Agent': 'Mozilla/5.0' };
-    }
-
     function extractInertiaData(html) {
         var match = html.match(/data-page="([^"]+)"/);
         if (!match) return null;
@@ -57,7 +53,7 @@
     async function getHome(cb) {
         try {
             var base = typeof manifest !== 'undefined' && manifest.baseUrl ? manifest.baseUrl : 'https://streamingcommunityz.sale';
-            var resp = await http_get(base + '/', UA());
+            var resp = await http_get(base + '/');
             if (!resp.body || resp.status >= 400) {
                 return cb({ success: false, errorCode: 'NETWORK_ERROR', message: 'Status ' + resp.status });
             }
@@ -82,7 +78,7 @@
         try {
             var base = typeof manifest !== 'undefined' && manifest.baseUrl ? manifest.baseUrl : 'https://streamingcommunityz.sale';
             var url = base + '/it/search?q=' + encodeURIComponent(query);
-            var resp = await http_get(url, UA());
+            var resp = await http_get(url);
             if (!resp.body || resp.status >= 400) {
                 return cb({ success: false, errorCode: 'SEARCH_ERROR', message: 'Status ' + resp.status });
             }
