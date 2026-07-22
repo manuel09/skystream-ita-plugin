@@ -136,6 +136,10 @@
                 tags: genres
             });
 
+            if (type === 'movie' && t.preview && t.preview.embed_url) {
+                item.streams = [new StreamResult({ url: t.preview.embed_url, source: 'VixCloud', quality: t.quality || 'Auto' })];
+            }
+
             if (type === 'series' && t.seasons) {
                 var eps = [];
                 var sub = !!t.sub_ita;
@@ -175,20 +179,15 @@
 
             var base = typeof manifest !== 'undefined' && manifest.baseUrl ? manifest.baseUrl : 'https://streamingcommunityz.sale';
             var resp = await http_get(base + url);
-            if (!resp.body || resp.status >= 400) {
-                return cb({ success: false, errorCode: 'STREAM_ERROR', message: 'Status ' + resp.status });
-            }
-            var data = extractInertiaData(resp.body);
             var streams = [];
-            if (data && data.props && data.props.title && data.props.title.preview && data.props.title.preview.embed_url) {
-                streams.push(new StreamResult({
-                    url: data.props.title.preview.embed_url,
-                    source: 'VixCloud',
-                    quality: data.props.title.quality || 'Auto'
-                }));
+            if (resp.body && resp.status < 400) {
+                var data = extractInertiaData(resp.body);
+                if (data && data.props && data.props.title && data.props.title.preview && data.props.title.preview.embed_url) {
+                    streams.push(new StreamResult({ url: data.props.title.preview.embed_url, source: 'VixCloud', quality: data.props.title.quality || 'Auto' }));
+                }
             }
             if (streams.length === 0) {
-                return cb({ success: false, errorCode: 'NO_STREAM', message: 'Nessuno stream. Apri il sito.' });
+                return cb({ success: false, errorCode: 'NO_STREAM', message: 'Stream non disponibile. Apri il sito nel browser.' });
             }
             cb({ success: true, data: streams });
         } catch (e) {
