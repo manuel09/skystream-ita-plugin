@@ -1,9 +1,9 @@
 {
   "name": "SC Plugin",
   "packageName": "com.manuel.skystream",
-  "description": "SC Plugin",
+  "description": "Plugins italiani per SkyStream",
   "manifestVersion": 1,
   "pluginLists": [
-    "https://cdn.jsdelivr.net/gh/manuel09/skystream-ita-plugin@dc1f9c21be728479e792712775ca1526d14ba2f9/dist/plugins.json"
+    "https://cdn.jsdelivr.net/gh/manuel09/skystream-ita-plugin@main/dist/plugins.json"
   ]
 }
