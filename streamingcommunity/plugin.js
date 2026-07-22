@@ -56,7 +56,8 @@
 
     async function getHome(cb) {
         try {
-            var resp = await http_get(manifest.baseUrl + '/', UA());
+            var base = typeof manifest !== 'undefined' && manifest.baseUrl ? manifest.baseUrl : 'https://streamingcommunityz.sale';
+            var resp = await http_get(base + '/', UA());
             if (!resp.body || resp.status >= 400) {
                 return cb({ success: false, errorCode: 'NETWORK_ERROR', message: 'Status ' + resp.status });
             }
@@ -79,7 +80,8 @@
 
     async function search(query, cb) {
         try {
-            var url = manifest.baseUrl + '/it/search?q=' + encodeURIComponent(query);
+            var base = typeof manifest !== 'undefined' && manifest.baseUrl ? manifest.baseUrl : 'https://streamingcommunityz.sale';
+            var url = base + '/it/search?q=' + encodeURIComponent(query);
             var resp = await http_get(url, UA());
             if (!resp.body || resp.status >= 400) {
                 return cb({ success: false, errorCode: 'SEARCH_ERROR', message: 'Status ' + resp.status });
@@ -107,7 +109,8 @@
             var tid = getId(url);
             if (!tid) return cb({ success: false, errorCode: 'INVALID_URL', message: 'URL non valido' });
 
-            var resp = await http_get(manifest.baseUrl + url, UA());
+            var base = typeof manifest !== 'undefined' && manifest.baseUrl ? manifest.baseUrl : 'https://streamingcommunityz.sale';
+            var resp = await http_get(base + url, UA());
             if (!resp.body || resp.status >= 400) {
                 return cb({ success: false, errorCode: 'LOAD_ERROR', message: 'Status ' + resp.status });
             }
@@ -174,7 +177,8 @@
             var tid = getId(url);
             if (!tid) return cb({ success: false, errorCode: 'INVALID_URL', message: 'URL non valido' });
 
-            var resp = await http_get(manifest.baseUrl + url, UA());
+            var base = typeof manifest !== 'undefined' && manifest.baseUrl ? manifest.baseUrl : 'https://streamingcommunityz.sale';
+            var resp = await http_get(base + url, UA());
             if (!resp.body || resp.status >= 400) {
                 return cb({ success: false, errorCode: 'STREAM_ERROR', message: 'Status ' + resp.status });
             }
