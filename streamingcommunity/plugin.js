@@ -106,7 +106,7 @@
             if (!tid) return cb({ success: false, errorCode: 'INVALID_URL', message: 'URL non valido' });
 
             var base = typeof manifest !== 'undefined' && manifest.baseUrl ? manifest.baseUrl : 'https://streamingcommunityz.sale';
-            var resp = await http_get(base + url, UA());
+            var resp = await http_get(base + url);
             if (!resp.body || resp.status >= 400) {
                 return cb({ success: false, errorCode: 'LOAD_ERROR', message: 'Status ' + resp.status });
             }
@@ -174,7 +174,7 @@
             if (!tid) return cb({ success: false, errorCode: 'INVALID_URL', message: 'URL non valido' });
 
             var base = typeof manifest !== 'undefined' && manifest.baseUrl ? manifest.baseUrl : 'https://streamingcommunityz.sale';
-            var resp = await http_get(base + url, UA());
+            var resp = await http_get(base + url);
             if (!resp.body || resp.status >= 400) {
                 return cb({ success: false, errorCode: 'STREAM_ERROR', message: 'Status ' + resp.status });
             }

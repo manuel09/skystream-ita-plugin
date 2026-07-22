@@ -4,6 +4,6 @@
   "description": "SC Plugin",
   "manifestVersion": 1,
   "pluginLists": [
-    "https://cdn.jsdelivr.net/gh/manuel09/skystream-ita-plugin@49f0e0ca7c4a6aa006ddd2d78e5efc3abc500913/dist/plugins.json"
+    "https://raw.githubusercontent.com/manuel09/skystream-ita-plugin/main/dist/plugins.json"
   ]
 }
