@@ -101,13 +101,7 @@
     }
 
     async function load(url, cb) {
-        cb({ success: true, data: new MultimediaItem({
-            title: 'Test Movie',
-            url: url,
-            posterUrl: 'https://cdn.streamingcommunityz.sale/images/81fa02ec-1135-4ee3-ab28-7f7a08288477.webp',
-            type: 'movie',
-            streams: [new StreamResult({ url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8', source: 'Test' })]
-        })});
+        cb({ success: true, data: { title: 'Test', type: 'movie', url: url, posterUrl: 'https://via.placeholder.com/400', streams: [{ url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8', source: 'Test' }] } });
     }
 
     async function loadStreams(url, cb) {
