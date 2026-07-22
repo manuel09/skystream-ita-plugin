@@ -85,14 +85,7 @@
     }
 
     async function load(url) {
-        return new MultimediaItem({
-            title: 'TEST - Premi Play',
-            url: url,
-            posterUrl: 'https://cdn.streamingcommunityz.sale/images/81fa02ec-1135-4ee3-ab28-7f7a08288477.webp',
-            type: 'movie',
-            description: 'Questo è un test. Se vedi questo, load funziona.',
-            streams: [new StreamResult({ url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8', source: 'Test' })]
-        });
+        return { title: 'TEST', type: 'movie', url: url, posterUrl: 'https://via.placeholder.com/300', description: 'test', streams: [{ url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8', source: 'Test' }] };
     }
 
     async function loadStreams(url) {
