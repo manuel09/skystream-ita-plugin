@@ -55,12 +55,8 @@
     }
 
     async function getHome(cb) {
-        try {
-            var base = typeof manifest !== 'undefined' && manifest.baseUrl ? manifest.baseUrl : 'https://streamingcommunityz.sale';
-            var resp = await http_get(base + '/', UA());
-            if (!resp.body || resp.status >= 400) {
-                return cb({ success: false, errorCode: 'NETWORK_ERROR', message: 'Status ' + resp.status });
-            }
+        cb({ success: false, errorCode: 'TEST_V5', message: 'Plugin v5 loaded' });
+        return;
             var data = extractInertiaData(resp.body);
             if (!data || !data.props || !data.props.sliders) {
                 return cb({ success: false, errorCode: 'PARSE_ERROR', message: 'No sliders found' });
