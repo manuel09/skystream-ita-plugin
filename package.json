@@ -1,0 +1,12 @@
+{
+  "name": "skystream-plugin",
+  "version": "1.0.0",
+  "description": "Plugin SkyStream per siti di streaming italiani",
+  "private": true,
+  "scripts": {
+    "deploy": "skystream deploy -u https://raw.githubusercontent.com/manuel09/skystream-ita-plugin/main"
+  },
+  "devDependencies": {
+    "skystream-extractors": "latest"
+  }
+}
