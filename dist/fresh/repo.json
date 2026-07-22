@@ -1,0 +1,9 @@
+{
+  "name": "SC",
+  "packageName": "com.manuel.skystream",
+  "description": "SC",
+  "manifestVersion": 1,
+  "pluginLists": [
+    "https://raw.githubusercontent.com/manuel09/skystream-ita-plugin/main/dist/fresh/plugins.json"
+  ]
+}
